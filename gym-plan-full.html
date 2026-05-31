@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gym Plan">
+<title>4-Week Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface2: #1c1c1c;
+  --border: #2a2a2a;
+  --accent: #c8f135;
+  --accent2: #35f1c8;
+  --text: #f0f0f0;
+  --muted: #666;
+  --muted2: #444;
+  --lift: #c8f135;
+  --run: #35f1c8;
+  --rest: #666;
+  --active: #f1a035;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden}
+body{padding-bottom:env(safe-area-inset-bottom)}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;padding:0 16px}
+.nav::-webkit-scrollbar{display:none}
+.nav-btn{flex-shrink:0;padding:14px 16px;font-size:12px;font-family:'DM Mono',monospace;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;transition:color 0.2s,border-color 0.2s}
+.nav-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* HEADER */
+.header{padding:24px 20px 16px;border-bottom:1px solid var(--border)}
+.header-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.header-title{font-size:22px;font-weight:600;letter-spacing:-0.02em;line-height:1.2}
+.header-title span{color:var(--accent)}
+
+/* SECTIONS */
+.section{display:none;padding:20px}
+.section.active{display:block}
+
+/* STAT GRID */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px}
+.stat-label{font-size:10px;font-family:'DM Mono',monospace;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.stat-val{font-size:20px;font-weight:600;letter-spacing:-0.02em;color:var(--text)}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.stat.accent{border-color:var(--accent);background:rgba(200,241,53,0.04)}
+.stat.accent .stat-val{color:var(--accent)}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:14px}
+.card-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.shop-item{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer}
+.shop-item:last-child{border-bottom:none}
+.shop-box{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--muted2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.shop-box.ticked{background:var(--accent);border-color:var(--accent)}
+.shop-box.ticked::after{content:'✓';font-size:11px;color:#000;font-weight:700}
+.shop-name{font-size:13px;color:var(--text);flex:1}
+.shop-name.done{text-decoration:line-through;color:var(--muted)}
+.shop-qty{font-size:12px;color:var(--muted);flex-shrink:0}
+.card-head-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.card-title{font-size:13px;font-weight:600;letter-spacing:0.01em}
+.card-body{padding:0}
+.row{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1px solid var(--border)}
+.row:last-child{border-bottom:none}
+.row-label{font-size:13px;color:var(--muted)}
+.row-val{font-size:13px;font-weight:500;font-family:'DM Mono',monospace;color:var(--text)}
+.row-val.green{color:var(--lift)}
+
+/* NOTE */
+.note{background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--muted);line-height:1.6}
+.note strong{color:var(--text);font-weight:500}
+
+/* WEEK SCHEDULE */
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:14px}
+.day{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 4px;text-align:center;cursor:pointer;transition:border-color 0.2s}
+.day.active-day{border-color:var(--accent)}
+.day-name{font-size:9px;font-family:'DM Mono',monospace;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.day-pip{width:8px;height:8px;border-radius:50%;margin:0 auto 4px}
+.day-type{font-size:9px;color:var(--muted);line-height:1.3}
+.pip-lift{background:var(--lift)}
+.pip-run{background:var(--run)}
+.pip-rest{background:var(--rest)}
+.pip-active{background:var(--active)}
+
+/* SESSION DETAIL */
+.session-detail{display:none;background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px}
+.session-detail.visible{display:block}
+.session-detail-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.session-detail-sub{font-size:12px;color:var(--muted);margin-bottom:14px}
+.ex-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.ex-row:last-child{border-bottom:none}
+.ex-name{font-size:13px;color:var(--text)}
+.ex-sets{font-size:12px;font-family:'DM Mono',monospace;color:var(--accent);font-weight:500}
+
+/* BADGE */
+.badge{display:inline-block;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;border-radius:6px;font-weight:500}
+.badge-lift{background:rgba(200,241,53,0.12);color:var(--lift)}
+.badge-run{background:rgba(53,241,200,0.12);color:var(--run)}
+.badge-rest{background:rgba(102,102,102,0.15);color:var(--muted)}
+.badge-active{background:rgba(241,160,53,0.12);color:var(--active)}
+
+/* SECTION TITLE */
+.sec-title{font-size:11px;font-family:'DM Mono',monospace;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+
+/* MACRO BAR */
+.macro-bar-wrap{background:var(--surface2);border-radius:99px;height:6px;margin:8px 0 4px;overflow:hidden;display:flex;gap:2px}
+.macro-seg{height:6px;border-radius:99px}
+
+/* CHECKLIST */
+.check-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.check-item:last-child{border-bottom:none}
+.check-box{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.check-box.checked{background:var(--accent);border-color:var(--accent)}
+.check-box.checked::after{content:'✓';font-size:12px;color:#000;font-weight:700}
+.check-text{font-size:13px;color:var(--text)}
+.check-text.done{text-decoration:line-through;color:var(--muted)}
+
+/* PROGRESS */
+.prog-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px}
+.prog-track{background:var(--surface2);border-radius:99px;height:6px;overflow:hidden;margin-bottom:14px}
+.prog-fill{height:6px;border-radius:99px;background:var(--accent);transition:width 0.3s}
+
+/* WEEK TOGGLE */
+.week-toggle{display:flex;gap:8px;margin-bottom:16px}
+.wtog{flex:1;padding:10px;text-align:center;border:1px solid var(--border);border-radius:10px;font-size:12px;font-family:'DM Mono',monospace;color:var(--muted);cursor:pointer;background:var(--surface);transition:all 0.2s}
+.wtog.active{border-color:var(--accent);color:var(--accent);background:rgba(200,241,53,0.05)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-label">4-week fat loss plan</div>
+  <div class="header-title">Your training<br><span>& nutrition hub</span></div>
+</div>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="showSection('overview',this)">Overview</button>
+  <button class="nav-btn" onclick="showSection('schedule',this)">Schedule</button>
+  <button class="nav-btn" onclick="showSection('sessions',this)">Sessions</button>
+  <button class="nav-btn" onclick="showSection('nutrition',this)">Nutrition</button>
+  <button class="nav-btn" onclick="showSection('tracker',this)">Tracker</button>
+  <button class="nav-btn" onclick="showSection('meals',this)">Meals</button>
+  <button class="nav-btn" onclick="showSection('shopping',this)">Shopping</button>
+</nav>
+
+<!-- OVERVIEW -->
+<div id="overview" class="section active">
+  <div class="stat-grid">
+    <div class="stat"><div class="stat-label">Start</div><div class="stat-val">15.2 st</div><div class="stat-sub">96.6 kg</div></div>
+    <div class="stat accent"><div class="stat-label">4-wk target</div><div class="stat-val">~14.8 st</div><div class="stat-sub">3–4 kg loss</div></div>
+    <div class="stat"><div class="stat-label">Calories</div><div class="stat-val">2,200</div><div class="stat-sub">training days</div></div>
+    <div class="stat"><div class="stat-label">Protein</div><div class="stat-val">185g</div><div class="stat-sub">daily minimum</div></div>
+  </div>
+
+  <p class="sec-title">Weekly structure</p>
+  <div class="card">
+    <div class="card-body">
+      <div class="row"><span class="row-label">Gym sessions (weights)</span><span class="row-val">4×</span></div>
+      <div class="row"><span class="row-label">Running sessions</span><span class="row-val">2–3×</span></div>
+      <div class="row"><span class="row-label">Lift split</span><span class="row-val">Upper / Lower</span></div>
+      <div class="row"><span class="row-label">Full rest days</span><span class="row-val">1–2×</span></div>
+    </div>
+  </div>
+
+  <p class="sec-title">Projected weight loss</p>
+  <div class="card">
+    <div class="card-body">
+      <div class="row"><span class="row-label">Week 1 (water + glycogen)</span><span class="row-val green">–1.5 to –2 kg</span></div>
+      <div class="row"><span class="row-label">Weeks 2–3 (true fat)</span><span class="row-val green">–0.7 to –1 kg/wk</span></div>
+      <div class="row"><span class="row-label">4-week total</span><span class="row-val green">–3 to –4 kg</span></div>
+    </div>
+  </div>
+
+  <div class="note"><strong>Week 1 note:</strong> The big drop is mostly water and glycogen — not fat. Don't adjust the plan based on it. Real fat loss shows up from week 2 onwards.</div>
+
+  <p class="sec-title">Key rules</p>
+  <div class="card">
+    <div class="card-body">
+      <div class="row"><span class="row-label">Water</span><span class="row-val">3–4 L / day</span></div>
+      <div class="row"><span class="row-label">Sleep</span><span class="row-val">7–9 hrs</span></div>
+      <div class="row"><span class="row-label">Alcohol</span><span class="row-val">Eliminate</span></div>
+      <div class="row"><span class="row-label">Steps (rest days)</span><span class="row-val">8k+ min</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCHEDULE -->
+<div id="schedule" class="section">
+  <div class="week-toggle">
+    <div class="wtog active" onclick="showWeek(1,this)">Week 1–2</div>
+    <div class="wtog" onclick="showWeek(2,this)">Week 3–4</div>
+  </div>
+
+  <div id="wk1">
+    <p class="sec-title">Tap a day for details</p>
+    <div class="week">
+      <div class="day" onclick="showDay('mon12')"><div class="day-name">Mon</div><div class="day-pip pip-lift"></div><div class="day-type">Upper A</div></div>
+      <div class="day" onclick="showDay('tue12')"><div class="day-name">Tue</div><div class="day-pip pip-run"></div><div class="day-type">Run</div></div>
+      <div class="day" onclick="showDay('wed12')"><div class="day-name">Wed</div><div class="day-pip pip-lift"></div><div class="day-type">Lower A</div></div>
+      <div class="day" onclick="showDay('thu12')"><div class="day-name">Thu</div><div class="day-pip pip-run"></div><div class="day-type">Intervals</div></div>
+      <div class="day" onclick="showDay('fri12')"><div class="day-name">Fri</div><div class="day-pip pip-lift"></div><div class="day-type">Upper B</div></div>
+      <div class="day" onclick="showDay('sat12')"><div class="day-name">Sat</div><div class="day-pip pip-lift"></div><div class="day-type">Lower B</div></div>
+      <div class="day" onclick="showDay('sun12')"><div class="day-name">Sun</div><div class="day-pip pip-rest"></div><div class="day-type">Rest</div></div>
+    </div>
+
+    <div id="mon12" class="session-detail"><div class="session-detail-title">Monday — Upper A <span class="badge badge-lift">Weights</span></div><div class="session-detail-sub">Chest & back · push + pull · ~55 min</div><div class="ex-row"><span class="ex-name">Bench press</span><span class="ex-sets">4 × 6–8</span></div><div class="ex-row"><span class="ex-name">Barbell / DB row</span><span class="ex-sets">4 × 8–10</span></div><div class="ex-row"><span class="ex-name">Incline DB press</span><span class="ex-sets">3 × 10–12</span></div><div class="ex-row"><span class="ex-name">Pull-ups / lat pulldown</span><span class="ex-sets">3 × 8–10</span></div><div class="ex-row"><span class="ex-name">Cable fly</span><span class="ex-sets">3 × 12–15</span></div><div class="ex-row"><span class="ex-name">Face pulls</span><span class="ex-sets">3 × 15</span></div></div>
+
+    <div id="tue12" class="session-detail"><div class="session-detail-title">Tuesday — Easy Run <span class="badge badge-run">Run</span></div><div class="session-detail-sub">6–8 km · Zone 2 · conversational pace ~6:15–6:45/km</div><div class="ex-row"><span class="ex-name">Distance</span><span class="ex-sets">6–8 km</span></div><div class="ex-row"><span class="ex-name">Pace</span><span class="ex-sets">Easy / Zone 2</span></div><div class="ex-row"><span class="ex-name">Heart rate</span><span class="ex-sets">~65–75% max</span></div><div class="ex-row"><span class="ex-name">Feel</span><span class="ex-sets">Conversational</span></div></div>
+
+    <div id="wed12" class="session-detail"><div class="session-detail-title">Wednesday — Lower A <span class="badge badge-lift">Weights</span></div><div class="session-detail-sub">Squat focus + core · ~55 min</div><div class="ex-row"><span class="ex-name">Back squat</span><span class="ex-sets">4 × 5–6</span></div><div class="ex-row"><span class="ex-name">Bulgarian split squat</span><span class="ex-sets">3 × 8 each</span></div><div class="ex-row"><span class="ex-name">Leg press</span><span class="ex-sets">3 × 12</span></div><div class="ex-row"><span class="ex-name">Leg curl</span><span class="ex-sets">3 × 12</span></div><div class="ex-row"><span class="ex-name">Calf raises</span><span class="ex-sets">4 × 15</span></div><div class="ex-row"><span class="ex-name">Plank / ab wheel</span><span class="ex-sets">3 × 30–45s</span></div></div>
+
+    <div id="thu12" class="session-detail"><div class="session-detail-title">Thursday — Intervals <span class="badge badge-run">Run</span></div><div class="session-detail-sub">5–7 km total · 1 min hard / 2 min easy × 6–8 rounds</div><div class="ex-row"><span class="ex-name">Warm-up</span><span class="ex-sets">1 km easy</span></div><div class="ex-row"><span class="ex-name">Hard intervals</span><span class="ex-sets">6–8 × 1 min</span></div><div class="ex-row"><span class="ex-name">Recovery jog</span><span class="ex-sets">2 min between</span></div><div class="ex-row"><span class="ex-name">Cool-down</span><span class="ex-sets">1 km easy</span></div></div>
+
+    <div id="fri12" class="session-detail"><div class="session-detail-title">Friday — Upper B <span class="badge badge-lift">Weights</span></div><div class="session-detail-sub">Shoulders, arms & back · ~55 min</div><div class="ex-row"><span class="ex-name">Overhead press</span><span class="ex-sets">4 × 6–8</span></div><div class="ex-row"><span class="ex-name">Weighted pull-ups / rows</span><span class="ex-sets">4 × 8</span></div><div class="ex-row"><span class="ex-name">Lateral raises</span><span class="ex-sets">4 × 15</span></div><div class="ex-row"><span class="ex-name">EZ bar curl</span><span class="ex-sets">3 × 10–12</span></div><div class="ex-row"><span class="ex-name">Tricep pushdown</span><span class="ex-sets">3 × 12</span></div><div class="ex-row"><span class="ex-name">Rear delt fly</span><span class="ex-sets">3 × 15</span></div></div>
+
+    <div id="sat12" class="session-detail"><div class="session-detail-title">Saturday — Lower B <span class="badge badge-lift">Weights</span></div><div class="session-detail-sub">Hinge & glute focus · ~55 min</div><div class="ex-row"><span class="ex-name">Romanian deadlift</span><span class="ex-sets">4 × 8–10</span></div><div class="ex-row"><span class="ex-name">Hip thrust</span><span class="ex-sets">4 × 10–12</span></div><div class="ex-row"><span class="ex-name">Walking lunges</span><span class="ex-sets">3 × 12 each</span></div><div class="ex-row"><span class="ex-name">Leg extension</span><span class="ex-sets">3 × 15</span></div><div class="ex-row"><span class="ex-name">Single leg RDL</span><span class="ex-sets">3 × 10 each</span></div><div class="ex-row"><span class="ex-name">Cable pull-through</span><span class="ex-sets">3 × 12</span></div></div>
+
+    <div id="sun12" class="session-detail"><div class="session-detail-title">Sunday — Full Rest <span class="badge badge-rest">Rest</span></div><div class="session-detail-sub">Active recovery only</div><div class="ex-row"><span class="ex-name">Steps target</span><span class="ex-sets">8,000+</span></div><div class="ex-row"><span class="ex-name">Activity</span><span class="ex-sets">Walk only</span></div><div class="ex-row"><span class="ex-name">No gym or running</span><span class="ex-sets">—</span></div></div>
+
+    <div class="note"><strong>Weeks 1–2 focus:</strong> Establish working weights — log every lift. RPE 7–8 on main compounds. Tuesday run should feel embarrassingly easy compared to your 54-min 10k pace.</div>
+  </div>
+
+  <div id="wk2" style="display:none">
+    <p class="sec-title">Tap a day for details</p>
+    <div class="week">
+      <div class="day" onclick="showDay('mon34')"><div class="day-name">Mon</div><div class="day-pip pip-lift"></div><div class="day-type">Upper A</div></div>
+      <div class="day" onclick="showDay('tue34')"><div class="day-name">Tue</div><div class="day-pip pip-run"></div><div class="day-type">Run</div></div>
+      <div class="day" onclick="showDay('wed34')"><div class="day-name">Wed</div><div class="day-pip pip-lift"></div><div class="day-type">Lower A</div></div>
+      <div class="day" onclick="showDay('thu34')"><div class="day-name">Thu</div><div class="day-pip pip-active"></div><div class="day-type">Walk</div></div>
+      <div class="day" onclick="showDay('fri34')"><div class="day-name">Fri</div><div class="day-pip pip-lift"></div><div class="day-type">Upper B</div></div>
+      <div class="day" onclick="showDay('sat34')"><div class="day-name">Sat</div><div class="day-pip pip-run"></div><div class="day-type">Long run</div></div>
+      <div class="day" onclick="showDay('sun34')"><div class="day-name">Sun</div><div class="day-pip pip-lift"></div><div class="day-type">Lower B</div></div>
+    </div>
+
+    <div id="mon34" class="session-detail"><div class="session-detail-title">Monday — Upper A <span class="badge badge-lift">Weights</span></div><div class="session-detail-sub">+2.5–5% load vs weeks 1–2</div><div class="ex-row"><span class="ex-name">Bench press</span><span class="ex-sets">4 × 6–8</span></div><div class="ex-row"><span class="ex-name">Barbell / DB row</span><span class="ex-sets">4 × 8–10</span></div><div class="ex-row"><span class="ex-name">Incline DB press</span><span class="ex-sets">3 × 10–12</span></div><div class="ex-row"><span class="ex-name">Pull-ups / lat pulldown</span><span class="ex-sets">3 × 8–10</span></div><div class="ex-row"><span class="ex-name">Cable fly</span><span class="ex-sets">3 × 12–15</span></div><div class="ex-row"><span class="ex-name">Face pulls</span><span class="ex-sets">3 × 15</span></div></div>
+
+    <div id="tue34" class="session-detail"><div class="session-detail-title">Tuesday — Easy Run <span class="badge badge-run">Run</span></div><div class="session-detail-sub">8–10 km · Zone 2 · increase from weeks 1–2</div><div class="ex-row"><span class="ex-name">Distance</span><span class="ex-sets">8–10 km</span></div><div class="ex-row"><span class="ex-name">Pace</span><span class="ex-sets">Easy / Zone 2</span></div><div class="ex-row"><span class="ex-name">Heart rate</span><span class="ex-sets">~65–75% max</span></div></div>
+
+    <div id="wed34" class="session-detail"><div class="session-detail-title">Wednesday — Lower A <span class="badge badge-lift">Weights</span></div><div class="session-detail-sub">+1 working set per main compound</div><div class="ex-row"><span class="ex-name">Back squat</span><span class="ex-sets">5 × 5–6</span></div><div class="ex-row"><span class="ex-name">Bulgarian split squat</span><span class="ex-sets">4 × 8 each</span></div><div class="ex-row"><span class="ex-name">Leg press</span><span class="ex-sets">4 × 12</span></div><div class="ex-row"><span class="ex-name">Leg curl</span><span class="ex-sets">3 × 12</span></div><div class="ex-row"><span class="ex-name">Calf raises</span><span class="ex-sets">4 × 15</span></div><div class="ex-row"><span class="ex-name">Plank / ab wheel</span><span class="ex-sets">3 × 40–50s</span></div></div>
+
+    <div id="thu34" class="session-detail"><div class="session-detail-title">Thursday — Active Recovery <span class="badge badge-active">Walk</span></div><div class="session-detail-sub">No gym. Keep moving.</div><div class="ex-row"><span class="ex-name">Steps target</span><span class="ex-sets">10,000+</span></div><div class="ex-row"><span class="ex-name">Activity</span><span class="ex-sets">Walk only</span></div><div class="ex-row"><span class="ex-name">Purpose</span><span class="ex-sets">Recovery for Saturday</span></div></div>
+
+    <div id="fri34" class="session-detail"><div class="session-detail-title">Friday — Upper B <span class="badge badge-lift">Weights</span></div><div class="session-detail-sub">Progressive overload · RPE 8</div><div class="ex-row"><span class="ex-name">Overhead press</span><span class="ex-sets">4 × 6–8</span></div><div class="ex-row"><span class="ex-name">Weighted pull-ups / rows</span><span class="ex-sets">4 × 8</span></div><div class="ex-row"><span class="ex-name">Lateral raises</span><span class="ex-sets">4 × 15</span></div><div class="ex-row"><span class="ex-name">EZ bar curl</span><span class="ex-sets">3 × 10–12</span></div><div class="ex-row"><span class="ex-name">Tricep pushdown</span><span class="ex-sets">3 × 12</span></div><div class="ex-row"><span class="ex-name">Rear delt fly</span><span class="ex-sets">3 × 15</span></div></div>
+
+    <div id="sat34" class="session-detail"><div class="session-detail-title">Saturday — Long Run <span class="badge badge-run">Run</span></div><div class="session-detail-sub">10–12 km · your 54-min 10k pace or slightly easier</div><div class="ex-row"><span class="ex-name">Distance</span><span class="ex-sets">10–12 km</span></div><div class="ex-row"><span class="ex-name">Pace</span><span class="ex-sets">~5:20–5:45/km</span></div><div class="ex-row"><span class="ex-name">No gym today</span><span class="ex-sets">—</span></div></div>
+
+    <div id="sun34" class="session-detail"><div class="session-detail-title">Sunday — Lower B <span class="badge badge-lift">Weights</span></div><div class="session-detail-sub">Hinge & glute focus · RPE 8</div><div class="ex-row"><span class="ex-name">Romanian deadlift</span><span class="ex-sets">4 × 8–10</span></div><div class="ex-row"><span class="ex-name">Hip thrust</span><span class="ex-sets">4 × 10–12</span></div><div class="ex-row"><span class="ex-name">Walking lunges</span><span class="ex-sets">3 × 12 each</span></div><div class="ex-row"><span class="ex-name">Leg extension</span><span class="ex-sets">3 × 15</span></div><div class="ex-row"><span class="ex-name">Single leg RDL</span><span class="ex-sets">3 × 10 each</span></div><div class="ex-row"><span class="ex-name">Cable pull-through</span><span class="ex-sets">3 × 12</span></div></div>
+
+    <div class="note"><strong>Weeks 3–4 focus:</strong> Progress overload on every lift. Add load or 1 extra set to main compounds. Saturday is your longest run — don't combine with a gym session.</div>
+  </div>
+</div>
+
+<!-- SESSIONS REFERENCE -->
+<div id="sessions" class="section">
+  <p class="sec-title">Full session reference</p>
+
+  <div class="card">
+    <div class="card-head"><div class="card-head-icon" style="background:rgba(200,241,53,0.12);color:var(--lift)">A</div><div class="card-title">Upper A — Chest & back</div></div>
+    <div class="card-body">
+      <div class="row"><span class="row-label">Bench press</span><span class="row-val">4 × 6–8</span></div>
+      <div class="row"><span class="row-label">Barbell / DB row</span><span class="row-val">4 × 8–10</span></div>
+      <div class="row"><span class="row-label">Incline DB press</span><span class="row-val">3 × 10–12</span></div>
+      <div class="row"><span class="row-label">Pull-ups / lat pulldown</span><span class="row-val">3 × 8–10</span></div>
+      <div class="row"><span class="row-label">Cable fly</span><span class="row-val">3 × 12–15</span></div>
+      <div class="row"><span class="row-label">Face pulls</span><span class="row-val">3 × 15</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-head-icon" style="background:rgba(200,241,53,0.12);color:var(--lift)">B</div><div class="card-title">Upper B — Shoulders & arms</div></div>
+    <div class="card-body">
+      <div class="row"><span class="row-label">Overhead press</span><span class="row-val">4 × 6–8</span></div>
+      <div class="row"><span class="row-label">Weighted pull-ups / rows</span><span class="row-val">4 × 8</span></div>
+      <div class="row"><span class="row-label">Lateral raises</span><span class="row-val">4 × 15</span></div>
+      <div class="row"><span class="row-label">EZ bar curl</span><span class="row-val">3 × 10–12</span></div>
+      <div class="row"><span class="row-label">Tricep pushdown</span><span class="row-val">3 × 12</span></div>
+      <div class="row"><span class="row-label">Rear delt fly</span><span class="row-val">3 × 15</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-head-icon" style="background:rgba(200,241,53,0.12);color:var(--lift)">C</div><div class="card-title">Lower A — Squat focus</div></div>
+    <div class="card-body">
+      <div class="row"><span class="row-label">Back squat</span><span class="row-val">4 × 5–6</span></div>
+      <div class="row"><span class="row-label">Bulgarian split squat</span><span class="row-val">3 × 8 each</span></div>
+      <div class="row"><span class="row-label">Leg press</span><span class="row-val">3 × 12</span></div>
+      <div class="row"><span class="row-label">Leg curl</span><span class="row-val">3 × 12</span></div>
+      <div class="row"><span class="row-label">Calf raises</span><span class="row-val">4 × 15</span></div>
+      <div class="row"><span class="row-label">Plank / ab wheel</span><span class="row-val">3 × 30–45s</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-head-icon" style="background:rgba(200,241,53,0.12);color:var(--lift)">D</div><div class="card-title">Lower B — Hinge & glutes</div></div>
+    <div class="card-body">
+      <div class="row"><span class="row-label">Romanian deadlift</span><span class="row-val">4 × 8–10</span></div>
+      <div class="row"><span class="row-label">Hip thrust</span><span class="row-val">4 × 10–12</span></div>
+      <div class="row"><span class="row-label">Walking lunges</span><span class="row-val">3 × 12 each</span></div>
+      <div class="row"><span class="row-label">Leg extension</span><span class="row-val">3 × 15</span></div>
+      <div class="row"><span class="row-label">Single leg RDL</span><span class="row-val">3 × 10 each</span></div>
+      <div class="row"><span class="row-label">Cable pull-through</span><span class="row-val">3 × 12</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- NUTRITION -->
+<div id="nutrition" class="section">
+  <p class="sec-title">Training day targets</p>
+  <div class="stat-grid">
+    <div class="stat accent"><div class="stat-label">Calories</div><div class="stat-val">2,200</div><div class="stat-sub">kcal</div></div>
+    <div class="stat"><div class="stat-label">Protein</div><div class="stat-val">185g</div><div class="stat-sub">740 kcal</div></div>
+    <div class="stat"><div class="stat-label">Carbs</div><div class="stat-val">210g</div><div class="stat-sub">840 kcal</div></div>
+    <div class="stat"><div class="stat-label">Fat</div><div class="stat-val">69g</div><div class="stat-sub">621 kcal</div></div>
+  </div>
+
+  <p class="sec-title">Macro split</p>
+  <div class="macro-bar-wrap">
+    <div class="macro-seg" style="width:33.6%;background:var(--lift)"></div>
+    <div class="macro-seg" style="width:38.2%;background:var(--run)"></div>
+    <div class="macro-seg" style="width:28.2%;background:var(--active)"></div>
+  </div>
+  <div style="display:flex;gap:16px;margin-bottom:20px">
+    <span style="font-size:11px;color:var(--lift)">■ Protein 34%</span>
+    <span style="font-size:11px;color:var(--run)">■ Carbs 38%</span>
+    <span style="font-size:11px;color:var(--active)">■ Fat 28%</span>
+  </div>
+
+  <p class="sec-title">Rest day adjustment</p>
+  <div class="card">
+    <div class="card-body">
+      <div class="row"><span class="row-label">Total calories</span><span class="row-val">1,950–2,000</span></div>
+      <div class="row"><span class="row-label">Protein (keep same)</span><span class="row-val">185g</span></div>
+      <div class="row"><span class="row-label">Carbs (reduce here)</span><span class="row-val">160–170g</span></div>
+      <div class="row"><span class="row-label">Fat</span><span class="row-val">65–70g</span></div>
+    </div>
+  </div>
+
+  <p class="sec-title">Protein by meal</p>
+  <div class="card">
+    <div class="card-body">
+      <div class="row"><span class="row-label">Breakfast</span><span class="row-val">40–50g</span></div>
+      <div class="row"><span class="row-label">Lunch</span><span class="row-val">45–55g</span></div>
+      <div class="row"><span class="row-label">Post-workout snack</span><span class="row-val">30–40g</span></div>
+      <div class="row"><span class="row-label">Dinner</span><span class="row-val">45–55g</span></div>
+    </div>
+  </div>
+
+  <div class="note"><strong>Post-run protein:</strong> Whey shake + banana within 30 min of any hard session. Most skipped, most important. Don't leave the gym without hitting this.</div>
+
+  <p class="sec-title">Adjust if progress stalls</p>
+  <div class="card">
+    <div class="card-body">
+      <div class="row"><span class="row-label">Losing &lt;0.5 kg after week 1</span><span class="row-val" style="color:#f1a035">–150 kcal</span></div>
+      <div class="row"><span class="row-label">Losing &gt;1.2 kg/week</span><span class="row-val" style="color:var(--run)">+150 kcal</span></div>
+      <div class="row"><span class="row-label">Always adjust carbs first</span><span class="row-val">never protein</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- TRACKER -->
+<div id="tracker" class="section">
+  <p class="sec-title">Daily checklist</p>
+  <div class="card">
+    <div class="card-body" id="checklist">
+      <div class="check-item" onclick="toggle(this)"><div class="check-box"></div><span class="check-text">Hit protein target (185g)</span></div>
+      <div class="check-item" onclick="toggle(this)"><div class="check-box"></div><span class="check-text">Hit calorie target</span></div>
+      <div class="check-item" onclick="toggle(this)"><div class="check-box"></div><span class="check-text">Drank 3+ litres of water</span></div>
+      <div class="check-item" onclick="toggle(this)"><div class="check-box"></div><span class="check-text">8,000+ steps</span></div>
+      <div class="check-item" onclick="toggle(this)"><div class="check-box"></div><span class="check-text">Completed today's session</span></div>
+      <div class="check-item" onclick="toggle(this)"><div class="check-box"></div><span class="check-text">No alcohol</span></div>
+      <div class="check-item" onclick="toggle(this)"><div class="check-box"></div><span class="check-text">7+ hours sleep last night</span></div>
+      <div class="check-item" onclick="toggle(this)"><div class="check-box"></div><span class="check-text">Post-workout protein hit</span></div>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+    <span style="font-size:11px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted)">Daily score</span>
+    <span id="score-label" style="font-size:13px;font-family:'DM Mono',monospace;color:var(--accent);font-weight:500">0 / 8</span>
+  </div>
+  <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+
+  <button onclick="resetChecklist()" style="width:100%;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-size:13px;font-family:'DM Mono',monospace;letter-spacing:0.04em;cursor:pointer;margin-top:8px">Reset for new day</button>
+
+  <p class="sec-title" style="margin-top:20px">Running benchmark</p>
+  <div class="card">
+    <div class="card-body">
+      <div class="row"><span class="row-label">10k baseline (today)</span><span class="row-val">54:00</span></div>
+      <div class="row"><span class="row-label">Pace</span><span class="row-val">5:19 / km</span></div>
+      <div class="row"><span class="row-label">Target by holiday</span><span class="row-val" style="color:var(--accent)">&lt;52:00</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- MEALS -->
+<div id="meals" class="section">
+  <p class="sec-title">Breakfast — overnight oats</p>
+  <div class="card">
+    <div class="card-head" style="justify-content:space-between"><span class="card-title">High-protein overnight oats</span><span style="font-size:11px;color:var(--muted)">~500 kcal · 45g protein</span></div>
+    <div class="row"><span class="row-label">Oats</span><span class="row-val">80g</span></div>
+    <div class="row"><span class="row-label">Greek yoghurt (0% fat)</span><span class="row-val">150g</span></div>
+    <div class="row"><span class="row-label">Whey protein (mix in)</span><span class="row-val">1 scoop</span></div>
+    <div class="row"><span class="row-label">Semi-skimmed milk</span><span class="row-val">100ml</span></div>
+    <div class="row"><span class="row-label">Frozen berries (thaw overnight)</span><span class="row-val">80g</span></div>
+    <div class="row"><span class="row-label">Honey</span><span class="row-val">1 tsp</span></div>
+  </div>
+  <div class="note"><strong>Prep:</strong> Mix oats, yoghurt, whey and milk in a jar each night. Add frozen berries on top — they defrost overnight. Grab and go in the morning.</div>
+
+  <p class="sec-title">Lunch — cold, take to work</p>
+  <div class="card">
+    <div class="card-head" style="justify-content:space-between"><span class="card-title">Option A — chicken rice bowl</span><span style="font-size:11px;color:var(--muted)">~550 kcal · 50g protein</span></div>
+    <div class="row"><span class="row-label">Cooked chicken breast</span><span class="row-val">180g</span></div>
+    <div class="row"><span class="row-label">Cooked brown rice</span><span class="row-val">150g cooked</span></div>
+    <div class="row"><span class="row-label">Spinach / mixed leaves</span><span class="row-val">Large handful</span></div>
+    <div class="row"><span class="row-label">Cherry tomatoes + cucumber</span><span class="row-val">As much as you like</span></div>
+    <div class="row"><span class="row-label">Olive oil + lemon dressing</span><span class="row-val">1 tbsp oil</span></div>
+  </div>
+  <div class="card">
+    <div class="card-head" style="justify-content:space-between"><span class="card-title">Option B — turkey wraps</span><span style="font-size:11px;color:var(--muted)">~480 kcal · 45g protein</span></div>
+    <div class="row"><span class="row-label">Wholemeal wraps</span><span class="row-val">2</span></div>
+    <div class="row"><span class="row-label">Turkey slices</span><span class="row-val">120g</span></div>
+    <div class="row"><span class="row-label">Light cream cheese or hummus</span><span class="row-val">2 tbsp</span></div>
+    <div class="row"><span class="row-label">Spinach, cucumber, peppers</span><span class="row-val">As much as fits</span></div>
+    <div class="row"><span class="row-label">Hard boiled egg</span><span class="row-val">1</span></div>
+  </div>
+  <div class="note"><strong>On the go:</strong> M&S or Pret grilled chicken salad or protein pot + piece of fruit. Keep it under 550 kcal, 40g+ protein. Avoid meal deal crisps.</div>
+
+  <p class="sec-title">Dinners — rotate through the week</p>
+  <div class="card">
+    <div class="card-head" style="justify-content:space-between"><span class="card-title">Monday — chicken stir fry</span><span style="font-size:11px;color:var(--muted)">~600 kcal · 55g P</span></div>
+    <div class="row"><span class="row-label">Chicken breast</span><span class="row-val">200g</span></div>
+    <div class="row"><span class="row-label">Stir fry veg mix</span><span class="row-val">200g</span></div>
+    <div class="row"><span class="row-label">Rice noodles or rice</span><span class="row-val">60g dry</span></div>
+    <div class="row"><span class="row-label">Soy sauce, garlic, ginger</span><span class="row-val">To taste</span></div>
+  </div>
+  <div class="card">
+    <div class="card-head" style="justify-content:space-between"><span class="card-title">Tuesday — beef mince & rice</span><span style="font-size:11px;color:var(--muted)">~650 kcal · 55g P</span></div>
+    <div class="row"><span class="row-label">Lean beef mince (5% fat)</span><span class="row-val">200g</span></div>
+    <div class="row"><span class="row-label">Brown rice</span><span class="row-val">70g dry</span></div>
+    <div class="row"><span class="row-label">Tinned tomatoes, peppers, onion</span><span class="row-val">1 tin + veg</span></div>
+    <div class="row"><span class="row-label">Cumin, paprika, garlic</span><span class="row-val">To taste</span></div>
+  </div>
+  <div class="card">
+    <div class="card-head" style="justify-content:space-between"><span class="card-title">Wednesday — turkey meatballs & pasta</span><span style="font-size:11px;color:var(--muted)">~620 kcal · 52g P</span></div>
+    <div class="row"><span class="row-label">Turkey mince</span><span class="row-val">200g</span></div>
+    <div class="row"><span class="row-label">Wholemeal pasta</span><span class="row-val">70g dry</span></div>
+    <div class="row"><span class="row-label">Passata + garlic + herbs</span><span class="row-val">200ml</span></div>
+    <div class="row"><span class="row-label">Parmesan</span><span class="row-val">15g</span></div>
+  </div>
+  <div class="card">
+    <div class="card-head" style="justify-content:space-between"><span class="card-title">Thursday — chicken & sweet potato</span><span style="font-size:11px;color:var(--muted)">~580 kcal · 50g P</span></div>
+    <div class="row"><span class="row-label">Chicken thighs (skinless)</span><span class="row-val">220g</span></div>
+    <div class="row"><span class="row-label">Sweet potato</span><span class="row-val">200g</span></div>
+    <div class="row"><span class="row-label">Broccoli or green beans</span><span class="row-val">150g</span></div>
+    <div class="row"><span class="row-label">Olive oil + seasoning</span><span class="row-val">1 tbsp</span></div>
+  </div>
+  <div class="card">
+    <div class="card-head" style="justify-content:space-between"><span class="card-title">Fri / weekend — steak & veg</span><span style="font-size:11px;color:var(--muted)">~640 kcal · 55g P</span></div>
+    <div class="row"><span class="row-label">Lean sirloin or rump steak</span><span class="row-val">200g</span></div>
+    <div class="row"><span class="row-label">Baby potatoes</span><span class="row-val">150g</span></div>
+    <div class="row"><span class="row-label">Tenderstem broccoli or asparagus</span><span class="row-val">150g</span></div>
+    <div class="row"><span class="row-label">Olive oil + small knob butter</span><span class="row-val">1 tsp each</span></div>
+  </div>
+
+  <p class="sec-title">Evening — yoghurt bowl</p>
+  <div class="card">
+    <div class="card-head" style="justify-content:space-between"><span class="card-title">Protein yoghurt bowl</span><span style="font-size:11px;color:var(--muted)">~280 kcal · 30g protein</span></div>
+    <div class="row"><span class="row-label">Greek yoghurt (0% fat)</span><span class="row-val">200g</span></div>
+    <div class="row"><span class="row-label">Frozen berries (thawed)</span><span class="row-val">100g</span></div>
+    <div class="row"><span class="row-label">Low sugar granola</span><span class="row-val">25g</span></div>
+    <div class="row"><span class="row-label">Honey</span><span class="row-val">1 tsp</span></div>
+    <div class="row"><span class="row-label">Nut butter (optional)</span><span class="row-val">1 tsp</span></div>
+  </div>
+
+  <p class="sec-title">Sunday batch prep — saves the whole week</p>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Cook once, eat all week</span></div>
+    <div class="row"><span class="row-label">Cook large batch rice</span><span class="row-val">500g dry — portion up</span></div>
+    <div class="row"><span class="row-label">Grill / bake chicken</span><span class="row-val">800g — slice, refrigerate</span></div>
+    <div class="row"><span class="row-label">Hard boil eggs</span><span class="row-val">6 — keep in shell</span></div>
+    <div class="row"><span class="row-label">Chop salad veg</span><span class="row-val">Cucumber, peppers, tomatoes</span></div>
+  </div>
+  <div class="note"><strong>Every night:</strong> Make overnight oats takes 2 mins. Move frozen berries to fridge. Morning is fully grab-and-go.</div>
+</div>
+
+<!-- SHOPPING -->
+<div id="shopping" class="section">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <p class="sec-title" style="margin:0">Tesco shopping list</p>
+    <span style="background:rgba(53,241,200,0.12);color:var(--run);font-size:12px;padding:4px 10px;border-radius:8px;font-weight:500">Est. ~£55–65</span>
+  </div>
+  <div class="note">Tap each item to tick off as you shop. Oats, frozen berries and granola will last beyond one week so it gets cheaper each shop.</div>
+
+  <div class="card">
+    <div style="padding:8px 16px;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)">Meat & protein</div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Chicken breasts</span><span class="shop-qty">1.2 kg</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Chicken thighs (skinless, boneless)</span><span class="shop-qty">500g</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Lean beef mince 5% fat</span><span class="shop-qty">400g</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Turkey mince</span><span class="shop-qty">400g</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Turkey deli slices</span><span class="shop-qty">200g</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Sirloin or rump steak</span><span class="shop-qty">400g</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Free range eggs</span><span class="shop-qty">12 pack</span></div>
+  </div>
+
+  <div class="card">
+    <div style="padding:8px 16px;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)">Dairy</div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Fage 0% Greek yoghurt</span><span class="shop-qty">1 kg tub</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Semi-skimmed milk</span><span class="shop-qty">2 litres</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Light cream cheese (Philadelphia)</span><span class="shop-qty">165g tub</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Parmesan (grated)</span><span class="shop-qty">Small tub</span></div>
+  </div>
+
+  <div class="card">
+    <div style="padding:8px 16px;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)">Carbs & grains</div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Quaker porridge oats</span><span class="shop-qty">1 kg</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Brown rice</span><span class="shop-qty">1 kg bag</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Wholemeal pasta</span><span class="shop-qty">500g</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Wholemeal wraps (Tesco own)</span><span class="shop-qty">8 pack</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Sweet potatoes</span><span class="shop-qty">4 medium</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Baby potatoes</span><span class="shop-qty">500g bag</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Low sugar granola (Lizi's or own brand)</span><span class="shop-qty">500g</span></div>
+  </div>
+
+  <div class="card">
+    <div style="padding:8px 16px;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)">Fruit & veg</div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Frozen mixed berries</span><span class="shop-qty">1 kg bag</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Bananas</span><span class="shop-qty">6</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Spinach (or mixed leaves)</span><span class="shop-qty">200g bag</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Cherry tomatoes</span><span class="shop-qty">400g punnet</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Cucumbers</span><span class="shop-qty">2</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Mixed peppers</span><span class="shop-qty">4</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Broccoli</span><span class="shop-qty">2 heads</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Tenderstem broccoli or asparagus</span><span class="shop-qty">200g pack</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Green beans</span><span class="shop-qty">200g</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Stir fry veg mix (ready bag)</span><span class="shop-qty">300g</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Onions</span><span class="shop-qty">4</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Garlic bulb</span><span class="shop-qty">1</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Lemons</span><span class="shop-qty">3</span></div>
+  </div>
+
+  <div class="card">
+    <div style="padding:8px 16px;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)">Cupboard & condiments</div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Tinned chopped tomatoes</span><span class="shop-qty">4 tins</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Passata</span><span class="shop-qty">2 x 500ml cartons</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Low sodium soy sauce</span><span class="shop-qty">1 bottle</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Honey (runny)</span><span class="shop-qty">Small jar</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Hummus</span><span class="shop-qty">200g tub</span></div>
+    <div class="shop-item" onclick="tickShop(this)"><div class="shop-box"></div><span class="shop-name">Peanut or almond butter</span><span class="shop-qty">Small jar</span></div>
+  </div>
+
+  <button onclick="resetShop()" style="width:100%;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-size:13px;font-family:'DM Mono',monospace;letter-spacing:0.04em;cursor:pointer;margin-top:4px">Clear all ticks</button>
+</div>
+
+<script>
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function showWeek(n, btn) {
+  document.querySelectorAll('.wtog').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('wk1').style.display = n === 1 ? 'block' : 'none';
+  document.getElementById('wk2').style.display = n === 2 ? 'block' : 'none';
+  document.querySelectorAll('.session-detail').forEach(d => d.classList.remove('visible'));
+}
+
+var activeDay = null;
+function showDay(id) {
+  if (activeDay === id) {
+    document.getElementById(id).classList.remove('visible');
+    activeDay = null;
+    return;
+  }
+  document.querySelectorAll('.session-detail').forEach(d => d.classList.remove('visible'));
+  document.getElementById(id).classList.add('visible');
+  activeDay = id;
+}
+
+function toggle(item) {
+  var box = item.querySelector('.check-box');
+  var text = item.querySelector('.check-text');
+  box.classList.toggle('checked');
+  text.classList.toggle('done');
+  updateScore();
+}
+
+function updateScore() {
+  var checked = document.querySelectorAll('.check-box.checked').length;
+  var total = document.querySelectorAll('.check-box').length;
+  document.getElementById('score-label').textContent = checked + ' / ' + total;
+  document.getElementById('prog-fill').style.width = Math.round((checked / total) * 100) + '%';
+}
+
+function resetChecklist() {
+  document.querySelectorAll('.check-box').forEach(b => b.classList.remove('checked'));
+  document.querySelectorAll('.check-text').forEach(t => t.classList.remove('done'));
+  updateScore();
+}
+
+function tickShop(item) {
+  var box = item.querySelector('.shop-box');
+  var name = item.querySelector('.shop-name');
+  box.classList.toggle('ticked');
+  name.classList.toggle('done');
+}
+
+function resetShop() {
+  document.querySelectorAll('.shop-box').forEach(b => b.classList.remove('ticked'));
+  document.querySelectorAll('.shop-name').forEach(n => n.classList.remove('done'));
+}
+</script>
+</body>
+</html>
